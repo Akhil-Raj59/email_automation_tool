@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Mail, Plus, Pencil, Trash2, RefreshCw, Clock, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
 import { formatDateTime, truncate } from '@/utils/helpers';
 
-type CampaignStatus = 'draft' | 'scheduled' | 'sending' | 'completed' | 'failed' | 'paused';
+type CampaignStatus = 'draft' | 'scheduled' | 'processing' | 'completed' | 'failed' | 'paused';
 
 interface Campaign {
   _id: string;
@@ -22,7 +22,7 @@ interface Campaign {
 
 const STATUS_STYLES: Record<CampaignStatus, string> = {
   completed: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  sending: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  processing: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
   scheduled: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
   paused: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
   failed: 'bg-red-500/10 text-red-400 border-red-500/20',
@@ -373,7 +373,7 @@ export default function CampaignsPage() {
                   <span
                     className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border ${STATUS_STYLES[camp.status]}`}
                   >
-                    {camp.status === 'sending' && <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse mr-1.5" />}
+                    {camp.status === 'processing' && <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse mr-1.5" />}
                     {camp.status === 'completed' && <CheckCircle2 className="h-3 w-3 mr-1" />}
                     {camp.status === 'failed' && <XCircle className="h-3 w-3 mr-1" />}
                     {camp.status}

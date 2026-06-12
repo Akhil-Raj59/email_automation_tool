@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { History, RefreshCw, CheckCircle2, XCircle, Clock, Mail, AlertTriangle, Filter } from 'lucide-react';
 import { formatDateTime, timeAgo, truncate } from '@/utils/helpers';
 
-type LogStatus = 'pending' | 'sending' | 'sent' | 'failed';
+type LogStatus = 'pending' | 'processing' | 'sent' | 'failed';
 
 interface EmailLog {
   _id: string;
@@ -27,14 +27,14 @@ const STATUS_ICON: Record<LogStatus, React.ReactNode> = {
   sent: <CheckCircle2 className="h-4 w-4 text-emerald-400" />,
   failed: <XCircle className="h-4 w-4 text-red-400" />,
   pending: <Clock className="h-4 w-4 text-yellow-400" />,
-  sending: <RefreshCw className="h-4 w-4 text-blue-400 animate-spin" />,
+  processing: <RefreshCw className="h-4 w-4 text-blue-400 animate-spin" />,
 };
 
 const STATUS_BADGE: Record<LogStatus, string> = {
   sent: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   failed: 'bg-red-500/10 text-red-400 border-red-500/20',
   pending: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
-  sending: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  processing: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
 };
 
 export default function LogsPage() {
@@ -154,7 +154,7 @@ export default function LogsPage() {
           <option value="sent">Sent</option>
           <option value="failed">Failed</option>
           <option value="pending">Pending</option>
-          <option value="sending">Sending</option>
+          <option value="processing">Processing</option>
         </select>
       </div>
 

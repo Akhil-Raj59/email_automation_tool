@@ -26,7 +26,7 @@ interface CampaignRow {
   _id: string;
   title: string;
   subject: string;
-  status: 'draft' | 'scheduled' | 'sending' | 'completed' | 'failed' | 'paused';
+  status: 'draft' | 'scheduled' | 'processing' | 'completed' | 'failed' | 'paused';
   sentCount: number;
   totalCount: number;
   scheduledAt: string;
@@ -34,7 +34,7 @@ interface CampaignRow {
 
 const STATUS_STYLES: Record<string, string> = {
   completed: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  sending: 'bg-blue-500/10 text-blue-400 border-blue-500/20 animate-pulse',
+  processing: 'bg-blue-500/10 text-blue-400 border-blue-500/20 animate-pulse',
   scheduled: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
   paused: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
   failed: 'bg-red-500/10 text-red-400 border-red-500/20',

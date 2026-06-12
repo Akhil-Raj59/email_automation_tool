@@ -1,52 +1,48 @@
 /**
- * GET /api/cron/send — Manually trigger campaign processing.
- * Invoked securely by Vercel Cron on an hourly schedule.
+ * GET /api/cron/send — Daily campaign processing trigger.
+ *
+ * Invoked exclusively by Vercel Cron (0 0 * * *) on the Hobby plan.
+ * Protected by Vercel's standard Authorization: Bearer <CRON_SECRET> header.
+ *
+ * Security model:
+ *   Vercel automatically forwards the CRON_SECRET env var as a Bearer token
+ *   on every cron invocation. Unauthenticated requests are rejected with 401.
+ *   This prevents external actors from triggering sends manually.
+ *
+ * Timeout model:
+ *   campaign.service.runDailyCron() enforces its own 12s internal budget,
+ *   guaranteeing it returns before Vercel's 15s hard kill.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getDueCampaigns, processCampaign } from '@/services/campaign.service';
+import { runDailyCron } from '@/services/campaign.service';
 
-// Allow maximum possible execution time for this endpoint
-export const maxDuration = 60; // 60s for Pro, Hobby defaults to 15s natively
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
-  // Verify Vercel Cron Secret
+  // ── Auth ──────────────────────────────────────────────────────────────────
   const authHeader = req.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    console.error('Unauthorized cron invocation attempt.');
+    console.error('[cron/send] Unauthorized invocation attempt.');
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // ── Run ───────────────────────────────────────────────────────────────────
+  console.log('[cron/send] Cron invoked at', new Date().toISOString());
+
   try {
-    const dueCampaigns = await getDueCampaigns();
+    const result = await runDailyCron();
 
-    if (dueCampaigns.length === 0) {
-      return NextResponse.json({ message: 'No campaigns due.', processed: 0 });
-    }
-
-    const results = [];
-    let totalSent = 0;
-    
-    // We process them sequentially. Given our micro-batch size of 5, this is safe.
-    for (const campaign of dueCampaigns) {
-      const result = await processCampaign(String(campaign._id));
-      results.push({ id: String(campaign._id), title: campaign.title, ...result });
-      totalSent += result.sent;
-      
-      // If we hit a daily limit during processing of one campaign, we shouldn't keep processing others
-      if (result.skipped > 0) {
-        break; // Daily cap reached
-      }
-    }
+    console.log('[cron/send] Run complete:', JSON.stringify(result));
 
     return NextResponse.json({
-      message: `Cron executed. Processed ${dueCampaigns.length} campaign(s). Sent ${totalSent} emails.`,
-      results,
+      ok: true,
+      runAt: new Date().toISOString(),
+      ...result,
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error';
-    console.error('[cron/send] Error:', err);
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('[cron/send] Fatal error:', err);
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

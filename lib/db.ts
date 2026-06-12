@@ -34,14 +34,6 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
     };
 
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongooseInstance) => {
-      // Lazy-load scheduler to avoid circular dependency at module loading time
-      import('@/cron/scheduler')
-        .then(({ initCronScheduler }) => {
-          initCronScheduler();
-        })
-        .catch((err) => {
-          console.error('[db] Failed to initialize cron scheduler:', err);
-        });
       return mongooseInstance;
     });
   }

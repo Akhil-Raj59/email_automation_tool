@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
-export type CampaignStatus = 'draft' | 'scheduled' | 'sending' | 'completed' | 'failed' | 'paused';
+export type CampaignStatus = 'draft' | 'scheduled' | 'processing' | 'completed' | 'failed' | 'paused';
 export type CampaignProvider = 'gmail' | 'resend' | 'ses';
 
 export interface ICampaign extends Document {
@@ -24,7 +24,7 @@ const CampaignSchema = new Schema<ICampaign>(
     body: { type: String, required: true },
     status: {
       type: String,
-      enum: ['draft', 'scheduled', 'sending', 'completed', 'failed', 'paused'],
+      enum: ['draft', 'scheduled', 'processing', 'completed', 'failed', 'paused'],
       default: 'draft',
       index: true,
     },

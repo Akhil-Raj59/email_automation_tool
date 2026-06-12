@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
-export type EmailLogStatus = 'pending' | 'sending' | 'sent' | 'failed';
+export type EmailLogStatus = 'pending' | 'processing' | 'sent' | 'failed';
 
 export interface IEmailLog extends Document {
   campaignId: mongoose.Types.ObjectId;
@@ -21,7 +21,7 @@ const EmailLogSchema = new Schema<IEmailLog>(
     recipientEmail: { type: String, required: true, index: true },
     status: {
       type: String,
-      enum: ['pending', 'sending', 'sent', 'failed'],
+      enum: ['pending', 'processing', 'sent', 'failed'],
       default: 'pending',
       index: true,
     },
